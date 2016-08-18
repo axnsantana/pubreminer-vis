@@ -31,6 +31,11 @@ class PubreminerData:
                     if(data_lines):
                         self.data[info]=data_lines[0].split()
 
+    def save_json(self,filename):
+        import json
+        with open(filename, 'w') as outfile:
+            json.dump(self.data, outfile)
+
 class PubreminerVis:
     def __init__(self):
         pass
