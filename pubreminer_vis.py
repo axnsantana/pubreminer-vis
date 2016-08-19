@@ -36,6 +36,37 @@ class PubreminerData:
         with open(filename, 'w') as outfile:
             json.dump(self.data, outfile)
 
+    def download_pmid_metadata(self,pmid,filename=None,directory='.'):
+        import requests as rq
+        from lxml import etree
+
+        url='https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi'
+        payload = {'db':'pubmed','id':pmid,'rettype':'null','retmod':'xml'}
+        metadata = rq.get(url,params=payload)
+
+        try:
+            xml_string = etree.fromstring(metadata.text)
+            if(filename is None):
+                filename = "%s.xml" % (pmid)
+            filename = "%s/%s" % (directory,filename)
+            with open(filename,'w') as file:
+                file.write(etree.tostring(xml_string,pretty_print=True))
+        except Exception, e:
+            print repr(e)
+        return
+
+    def download_all_pmid_metadata(self,directory='.',delay=1):
+        import os
+        import time
+
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        for pmid in self.data['pmid']:
+            self.download_pmid_metadata(pmid,directory=directory)
+            time.sleep(delay)
+
+        return
+
 class PubreminerVis:
     def __init__(self):
         pass
