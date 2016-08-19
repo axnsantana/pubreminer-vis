@@ -36,12 +36,15 @@ class PubreminerData:
         with open(filename, 'w') as outfile:
             json.dump(self.data, outfile)
 
-    def download_pmid_metadata(self,pmid,filename=None,directory='.'):
+    def download_pmid_metadata(self,pmid,filename=None,directory='.',
+                                email='example@example.com',tool=''):
         import requests as rq
         from lxml import etree
 
         url='https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi'
-        payload = {'db':'pubmed','id':pmid,'rettype':'null','retmod':'xml'}
+        payload = {'db':'pubmed','id':pmid,
+                   'rettype':'null','retmod':'xml',
+                   'email':email,'tool':tool}
         metadata = rq.get(url,params=payload)
 
         try:
@@ -55,14 +58,16 @@ class PubreminerData:
             print repr(e)
         return
 
-    def download_all_pmid_metadata(self,directory='.',delay=1):
+    def download_all_pmid_metadata(self,directory='.',delay=1,
+                                    email='example@example.com',tool=''):
         import os
         import time
 
         if not os.path.exists(directory):
             os.makedirs(directory)
         for pmid in self.data['pmid']:
-            self.download_pmid_metadata(pmid,directory=directory)
+            self.download_pmid_metadata(pmid,directory=directory,
+                                        email=email,tool=tool)
             time.sleep(delay)
 
         return
