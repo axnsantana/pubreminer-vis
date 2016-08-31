@@ -65,9 +65,13 @@ class PubreminerData:
 
         if not os.path.exists(directory):
             os.makedirs(directory)
+        total = len(self.data['pmid'])
+        c=1
         for pmid in self.data['pmid']:
+            print "Downloading: %d of %d : %s" % (c,total,pmid)
             self.download_pmid_metadata(pmid,directory=directory,
                                         email=email,tool=tool)
+            c=c+1
             time.sleep(delay)
 
         return
