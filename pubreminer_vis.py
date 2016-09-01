@@ -75,6 +75,19 @@ class PubreminerData:
 
         return
 
+    def filter_major_topics(self, xmlfile, tag, UI, major='Y'):
+        from lxml import etree
+
+        doc = etree.parse(xmlfile)
+        mesh_hearders = doc.findall('.//MeshHeading')
+        for header in mesh_hearders:
+            for ch in header.getchildren():
+                if(ch.tag == tag and
+                   ch.attrib['UI'] == UI and
+                   ch.attrib['MajorTopicYN'] == major):
+                    return True
+    return False
+
 
 class PubreminerVis:
     def __init__(self):
