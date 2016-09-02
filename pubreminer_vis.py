@@ -75,18 +75,46 @@ class PubreminerData:
 
         return
 
-    def filter_major_topics(self, xmlfile, tag, UI, major='Y'):
+    def is_major_topics(self, xmlfile, tag, UI, major='Y'):
         from lxml import etree
 
         doc = etree.parse(xmlfile)
         mesh_hearders = doc.findall('.//MeshHeading')
         for header in mesh_hearders:
             for ch in header.getchildren():
-                if(ch.tag == tag and
-                   ch.attrib['UI'] == UI and
-                   ch.attrib['MajorTopicYN'] == major):
+                is_major = (ch.attrib['MajorTopicYN'] == 'Y') or (not major)
+                if(ch.tag == tag and ch.attrib['UI'] == UI and is_major):
+                    print xmlfile, ch.tag
+                    print ch.attrib['UI'], ch.attrib['MajorTopicYN']
                     return True
-    return False
+        return False
+
+    def has_qualifier(self, xmlfile, descriptor, qualifier,
+                      descriptorMajor=False, qualifierMajor=False,
+                      anyMajor=False):
+        from lxml import etree
+
+        doc = etree.parse(xmlfile)
+        mesh_hearders = doc.findall('.//MeshHeading')
+        descriptor_filter = "DescriptorName[@UI='%s']" % descriptor
+        qualifier_filter = "QualifierName[@UI='%s']" % qualifier
+        for header in mesh_hearders:
+            desc_tag = header.find(descriptor_filter)
+            qual_tag = header.find(qualifier_filter)
+            if(desc_tag is not None and qual_tag is not None):
+                anyMajor = ((desc_tag.attrib['MajorTopicYN'] == 'Y') or
+                            (qual_tag.attrib['MajorTopicYN'] == 'Y') or
+                            not anyMajor)
+                if(not anyMajor):
+                    return False
+                if(descriptorMajor and desc_tag.attrib['MajorTopicYN'] == 'N'):
+                    return False
+                if(qualifierMajor and qual_tag.attrib['MajorTopicYN'] == 'N'):
+                    return False
+                print desc_tag.text, desc_tag.attrib['MajorTopicYN']
+                print qual_tag.text, qual_tag.attrib['MajorTopicYN']
+                return True
+        return False
 
 
 class PubreminerVis:
